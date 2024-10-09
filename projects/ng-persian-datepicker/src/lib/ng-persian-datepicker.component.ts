@@ -59,6 +59,8 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
   private wasInsideClick: boolean = false;
 
   viewDateTitle: string = '';
+  viewDateTitleMonth: string = '';
+  viewDateTitleYear: string = '';
   viewModes: string[] = [];
   viewModeIndex: number = 0;
 
@@ -71,15 +73,16 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
   hour: number = 0;
   minute: number = 0;
   second: number = 0;
+  lastMonthSelect: number = 0;
 
   /** @ReactiveForm */
 
-  @ContentChild(FormControlDirective, {static: false})
+  @ContentChild(FormControlDirective, { static: false })
   set _formControlDirective(value: FormControlDirective | undefined) {
     this.setFormControl(value?.control);
   }
 
-  @ContentChild(FormControlName, {static: false})
+  @ContentChild(FormControlName, { static: false })
   set _formControlName(value: FormControlName | undefined) {
     this.setFormControl(value?.control);
   }
@@ -183,6 +186,8 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
 
   @Input()
   uiTodayBtnEnable: boolean = true;
+
+  @Input() getDayCustomClass: (year: number, month: number, day: number) => string = () => '';
 
   /** @Output */
 
@@ -484,7 +489,8 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
           isDayInCurrentMonth: this.isDayInCurrentMonth(day),
           isDayOfTodayDate: this.isDayOfTodayDate(day),
           isDayOfSelectedDate: this.isDayOfSelectedDate(day),
-          isDayDisabled: this.isDayDisabled(day)
+          isDayDisabled: this.isDayDisabled(day),
+          customClass: this.getDayCustomClass ? this.getDayCustomClass(day[1], day[2], day[3]) : ''
         });
       }
 
@@ -500,7 +506,8 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
     const year: number = date.getFullYear();
     switch (this.viewModes[this.viewModeIndex]) {
       case 'day':
-        this.viewDateTitle = `${this.calendarIsGregorian ? enMonths[date.getMonth()] : faMonths[date.getMonth()]} ${year}`;
+        this.viewDateTitleMonth = `${this.calendarIsGregorian ? enMonths[date.getMonth()] : faMonths[date.getMonth()]}`;
+        this.viewDateTitleYear = `${year}`;
         break;
       case 'month':
         this.viewDateTitle = year.toString();
@@ -564,6 +571,7 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
         this.viewDate.date.setMonth(this.viewDate.date.getMonth() + skip) :
         this.viewDate.add(skip, 'month');
     }
+    this.lastMonthSelect = this.viewDate.date.getMonth() - 2   
   }
 
   navigate(forward: boolean): void {
@@ -585,7 +593,7 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
     this.onChangeViewDate();
   }
 
-  nextViewMode(): void {
+  nextViewMode(viewMode: number): void {
     if (this.viewModes.length === 1) {
       return;
     }
@@ -595,6 +603,7 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
     } else {
       this.viewModeIndex++;
     }
+    this.viewModeIndex = viewMode == 1 ? 1 : 2
 
     this.setViewDateTitle();
   }
@@ -610,15 +619,13 @@ export class NgPersianDatepickerComponent implements OnInit, OnDestroy {
       return;
     }
     this.viewDate = Jalali.timestamp(year.timestamp, false);
-    let viewModeIndex: number = this.viewModes.indexOf('month');
-    if (viewModeIndex === -1) {
-      viewModeIndex = this.viewModes.indexOf('day');
-    }
-    this.viewModeIndex = viewModeIndex;
+    this.viewModeIndex = this.viewModes.indexOf('day');
     this.onChangeViewDate();
+    this.monthClick(this.months[this.lastMonthSelect])
   }
 
   monthClick(month: IMonth): void {
+    this.lastMonthSelect = month.indexValue
     if (month.isMonthDisabled) {
       return;
     }

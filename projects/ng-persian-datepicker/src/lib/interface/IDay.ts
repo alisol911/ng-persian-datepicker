@@ -7,4 +7,5 @@ export interface IDay {
   isDayOfTodayDate: boolean;
   isDayOfSelectedDate: boolean;
   isDayDisabled: boolean;
+  customClass: string;
 }

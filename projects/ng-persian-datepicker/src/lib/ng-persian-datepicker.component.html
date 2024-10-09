@@ -22,10 +22,12 @@
           </svg>
         </div>
         <div class="switch-view dp-btn"
-             [style.background-color]="switchView.classList.contains('hover') ? uiTheme.hoverBackground : null"
-             [style.color]="switchView.classList.contains('hover') ? uiTheme.hoverText : null"
-             (click)="nextViewMode()" themeHover #switchView>
-          <span>{{ viewDateTitle }}</span>
+             (click)="nextViewMode(1)" themeHover #switchView>
+             <span class="switch-view-menu">{{ viewDateTitleMonth }}</span>
+        </div>
+        <div class="switch-view dp-btn"
+             (click)="nextViewMode(2)" themeHover #switchView>
+             <span class="switch-view-menu">{{ viewDateTitleYear }}</span>
         </div>
         <div class="go-forward dp-btn"
              [style.background-color]="goForward.classList.contains('hover') ? uiTheme.hoverBackground : null"
@@ -140,7 +142,7 @@
             <div class="day-col"
                  (click)="dayClick(day)"
                  *ngFor="let day of row">
-              <div class="dp-btn"
+              <div [class]="'dp-btn ' + day.customClass"
                    [class.disabled]="day.isDayDisabled"
                    [class.selected]="day.isDayOfSelectedDate"
                    [class.today]="day.isDayOfTodayDate"

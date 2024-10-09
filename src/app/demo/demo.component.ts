@@ -51,4 +51,7 @@ export class DemoComponent {
     console.log(date);
   }
 
+  getDayCustomClass(year: number, month: number, day: number) {
+    return day == 1 || day == 2 ? 'test' : ''
+  }
 }
